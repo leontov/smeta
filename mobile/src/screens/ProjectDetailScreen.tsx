@@ -116,7 +116,7 @@ export const ProjectDetailScreen = ({
     <FlatList
       style={styles.list}
       data={detail.norms}
-      keyExtractor={(item) => item.code}
+      keyExtractor={(item: ProjectNorm) => item.code}
       refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
       ListHeaderComponent={
         <View style={styles.header}>
@@ -157,7 +157,7 @@ export const ProjectDetailScreen = ({
           <Text style={styles.sectionTitle}>Подобранные нормы</Text>
         </View>
       }
-      renderItem={({ item, index }) => <ProjectNormCard position={index + 1} norm={item} />}
+      renderItem={({ item, index }: { item: ProjectNorm; index: number }) => <ProjectNormCard position={index + 1} norm={item} />}
       ItemSeparatorComponent={() => <View style={styles.separator} />}
       ListEmptyComponent={<Text style={styles.empty}>Нет сохранённых норм для этого черновика.</Text>}
       contentContainerStyle={styles.content}

@@ -10,6 +10,12 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { useProjectsStore } from '@/state/projectsStore';
 import { ProjectSummary } from '@/types/project';
 
+interface ProjectCardProps {
+  project: ProjectSummary;
+  onPress: () => void;
+  key?: string | number;
+}
+
 export const HomeScreen = ({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>) => {
   const { projects, loadProjects } = useProjectsStore();
 
@@ -57,7 +63,7 @@ export const HomeScreen = ({ navigation }: NativeStackScreenProps<RootStackParam
   );
 };
 
-const ProjectCard = ({ project, onPress }: { project: ProjectSummary; onPress: () => void }) => (
+const ProjectCard = ({ project, onPress }: ProjectCardProps) => (
   <TouchableOpacity
     onPress={onPress}
     activeOpacity={0.86}
@@ -79,7 +85,7 @@ const ProjectCard = ({ project, onPress }: { project: ProjectSummary; onPress: (
   </TouchableOpacity>
 );
 
-const describeSettings = (project: ProjectSummary) => {
+const describeSettings = (project: ProjectSummary): string => {
   const method =
     project.settings.calculationMethod === 'resource'
       ? 'ресурсный метод'
@@ -94,7 +100,7 @@ const describeSettings = (project: ProjectSummary) => {
   return parts.join(' · ');
 };
 
-const formatDate = (timestamp: number) => new Date(timestamp).toLocaleDateString('ru-RU');
+const formatDate = (timestamp: number): string => new Date(timestamp).toLocaleDateString('ru-RU');
 
 const styles = StyleSheet.create({
   container: {

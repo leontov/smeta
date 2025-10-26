@@ -25,15 +25,15 @@ export const useEstimationStore = create<EstimationState>((set, get) => ({
   stage: 'input',
   input: null,
   candidates: [],
-  selectedCandidateIds: new Set(),
+  selectedCandidateIds: new Set<string>(),
   projectSummary: null,
-  setStage: (stage) => set({ stage }),
-  submitInput: async (input) => {
+  setStage: (stage: EstimationStage) => set({ stage }),
+  submitInput: async (input: NormativeMatchInput) => {
     const candidates = await generateCandidates(input);
-    set({ input, candidates, stage: 'matching', selectedCandidateIds: new Set(), projectSummary: null });
+    set({ input, candidates, stage: 'matching', selectedCandidateIds: new Set<string>(), projectSummary: null });
   },
-  toggleCandidate: (code) => {
-    const next = new Set(get().selectedCandidateIds);
+  toggleCandidate: (code: string) => {
+    const next = new Set<string>(get().selectedCandidateIds);
     if (next.has(code)) {
       next.delete(code);
     } else {
@@ -47,7 +47,7 @@ export const useEstimationStore = create<EstimationState>((set, get) => ({
       return;
     }
 
-    const selected = state.candidates.filter((candidate) =>
+    const selected = state.candidates.filter((candidate: NormativeCandidate) =>
       state.selectedCandidateIds.has(candidate.code)
     );
 
@@ -60,5 +60,5 @@ export const useEstimationStore = create<EstimationState>((set, get) => ({
     set({ projectSummary: summary, stage: 'documents' });
   },
   reset: () =>
-    set({ stage: 'input', input: null, candidates: [], selectedCandidateIds: new Set(), projectSummary: null })
+    set({ stage: 'input', input: null, candidates: [], selectedCandidateIds: new Set<string>(), projectSummary: null })
 }));

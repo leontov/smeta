@@ -1,3 +1,4 @@
+import type { SQLResultSet, SQLTransaction } from 'expo-sqlite';
 import { v4 as uuidv4 } from 'uuid';
 
 import { getDatabase } from '@/core/storage/database';
@@ -24,29 +25,33 @@ export const saveProjectDraft = async (
   const settings = normalizeSettings(input);
 
   await new Promise<void>((resolve, reject) => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        `INSERT INTO projects (id, name, description, created_at) VALUES (?, ?, ?, ?)`
-          .trim(),
-        [id, name, description, createdAt]
-      );
-
-      tx.executeSql(
-        `INSERT OR REPLACE INTO project_settings (project_id, calculation_method, region, index_profile)
-           VALUES (?, ?, ?, ?)`
-          .trim(),
-        [id, settings.calculationMethod, settings.region, settings.indexProfile]
-      );
-
-      selected.forEach((candidate, index) => {
+    db.transaction(
+      (tx: SQLTransaction) => {
         tx.executeSql(
-          `INSERT INTO project_norms (project_id, code, title, collection, order_index)
-             VALUES (?, ?, ?, ?, ?)`
+          `INSERT INTO projects (id, name, description, created_at) VALUES (?, ?, ?, ?)`
             .trim(),
-          [id, candidate.code, candidate.title, candidate.collection, index]
+          [id, name, description, createdAt]
         );
-      });
-    }, reject, resolve);
+
+        tx.executeSql(
+          `INSERT OR REPLACE INTO project_settings (project_id, calculation_method, region, index_profile)
+           VALUES (?, ?, ?, ?)`
+            .trim(),
+          [id, settings.calculationMethod, settings.region, settings.indexProfile]
+        );
+
+        selected.forEach((candidate, index) => {
+          tx.executeSql(
+            `INSERT INTO project_norms (project_id, code, title, collection, order_index)
+             VALUES (?, ?, ?, ?, ?)`
+              .trim(),
+            [id, candidate.code, candidate.title, candidate.collection, index]
+          );
+        });
+      },
+      (error: Error) => reject(error),
+      () => resolve()
+    );
   });
 
   return {
@@ -62,8 +67,8 @@ export const saveProjectDraft = async (
 export const listProjects = async (): Promise<ProjectSummary[]> => {
   const db = getDatabase();
 
-  return new Promise((resolve, reject) => {
-    db.readTransaction((tx) => {
+  return new Promise<ProjectSummary[]>((resolve, reject) => {
+    db.readTransaction((tx: SQLTransaction) => {
       tx.executeSql(
         `SELECT p.id,
                 p.name,
@@ -80,7 +85,7 @@ export const listProjects = async (): Promise<ProjectSummary[]> => {
            ORDER BY p.created_at DESC`
           .replace(/\s+/g, ' '),
         [],
-        (_, result) => {
+        (_: SQLTransaction, result: SQLResultSet) => {
           const summaries: ProjectSummary[] = [];
           for (let i = 0; i < result.rows.length; i += 1) {
             const row = result.rows.item(i);
@@ -98,14 +103,13 @@ export const listProjects = async (): Promise<ProjectSummary[]> => {
             });
           }
           resolve(summaries);
-          return true;
         },
-        (_, error) => {
+        (_: SQLTransaction, error: Error) => {
           reject(error);
           return false;
         }
       );
-    });
+    }, (error: Error) => reject(error));
   });
 };
 
@@ -114,13 +118,13 @@ export const deleteProject = async (id: string): Promise<void> => {
 
   await new Promise<void>((resolve, reject) => {
     db.transaction(
-      (tx) => {
+      (tx: SQLTransaction) => {
         tx.executeSql(`DELETE FROM project_norms WHERE project_id = ?`.trim(), [id]);
         tx.executeSql(`DELETE FROM project_settings WHERE project_id = ?`.trim(), [id]);
         tx.executeSql(`DELETE FROM projects WHERE id = ?`.trim(), [id]);
       },
-      reject,
-      resolve
+      (error: Error) => reject(error),
+      () => resolve()
     );
   });
 };
@@ -128,8 +132,8 @@ export const deleteProject = async (id: string): Promise<void> => {
 export const getProjectDetail = async (id: string): Promise<ProjectDetail | null> => {
   const db = getDatabase();
 
-  return new Promise((resolve, reject) => {
-    db.readTransaction((tx) => {
+  return new Promise<ProjectDetail | null>((resolve, reject) => {
+    db.readTransaction((tx: SQLTransaction) => {
       tx.executeSql(
         `SELECT p.id,
                 p.name,
@@ -144,10 +148,10 @@ export const getProjectDetail = async (id: string): Promise<ProjectDetail | null
            LIMIT 1`
           .replace(/\s+/g, ' '),
         [id],
-        (_, result) => {
+        (_: SQLTransaction, result: SQLResultSet) => {
           if (result.rows.length === 0) {
             resolve(null);
-            return true;
+            return;
           }
 
           const row = result.rows.item(0);
@@ -171,7 +175,7 @@ export const getProjectDetail = async (id: string): Promise<ProjectDetail | null
                ORDER BY order_index ASC`
               .replace(/\s+/g, ' '),
             [id],
-            (_, normsResult) => {
+            (_: SQLTransaction, normsResult: SQLResultSet) => {
               const norms: ProjectNorm[] = [];
               for (let i = 0; i < normsResult.rows.length; i += 1) {
                 norms.push(normsResult.rows.item(i) as ProjectNorm);
@@ -182,21 +186,18 @@ export const getProjectDetail = async (id: string): Promise<ProjectDetail | null
                 itemsCount: norms.length,
                 norms
               });
-              return true;
             },
-            (_, normsError) => {
+            (_: SQLTransaction, normsError: Error) => {
               reject(normsError);
               return false;
             }
           );
-
-          return true;
         },
-        (_, error) => {
+        (_: SQLTransaction, error: Error) => {
           reject(error);
           return false;
         }
       );
-    });
+    }, (error: Error) => reject(error));
   });
 };

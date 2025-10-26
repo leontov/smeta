@@ -20,12 +20,12 @@ export const useProjectsStore = create<ProjectsState>((set) => ({
       console.error('Failed to load projects', error);
     }
   },
-  addProject: (project) =>
-    set((state) => ({
-      projects: [project, ...state.projects.filter((existing) => existing.id !== project.id)]
+  addProject: (project: ProjectSummary) =>
+    set((state: ProjectsState) => ({
+      projects: [project, ...state.projects.filter((existing: ProjectSummary) => existing.id !== project.id)]
     })),
-  removeProject: (id) =>
-    set((state) => ({
-      projects: state.projects.filter((project) => project.id !== id)
+  removeProject: (id: string) =>
+    set((state: ProjectsState) => ({
+      projects: state.projects.filter((project: ProjectSummary) => project.id !== id)
     }))
 }));

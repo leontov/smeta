@@ -118,9 +118,9 @@ export const EstimationFlow = () => {
         <Text style={styles.sectionTitle}>Кандидаты норм</Text>
         <FlatList
           data={candidates}
-          keyExtractor={(item) => item.code}
+          keyExtractor={(item: NormativeCandidate) => item.code}
           contentContainerStyle={styles.listContent}
-          renderItem={({ item }) => (
+          renderItem={({ item }: { item: NormativeCandidate }) => (
             <CandidateRow
               candidate={item}
               selected={selectedCandidateIds.has(item.code)}
@@ -147,9 +147,9 @@ export const EstimationFlow = () => {
         <Text style={styles.sectionTitle}>Подбор ресурсов</Text>
         <FlatList
           data={selectedCandidates}
-          keyExtractor={(item) => item.code}
+          keyExtractor={(item: NormativeCandidate) => item.code}
           contentContainerStyle={styles.listContent}
-          renderItem={({ item }) => <SelectedCandidateCard candidate={item} />}
+          renderItem={({ item }: { item: NormativeCandidate }) => <SelectedCandidateCard candidate={item} />}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
         <PrimaryButton
@@ -166,7 +166,7 @@ export const EstimationFlow = () => {
     <View style={styles.container}>
       <FlatList
         data={selectedCandidates}
-        keyExtractor={(item) => item.code}
+        keyExtractor={(item: NormativeCandidate) => item.code}
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={
           <View style={styles.documentsHeader}>
@@ -205,7 +205,7 @@ export const EstimationFlow = () => {
             <Text style={styles.summarySubtitle}>Подобранные нормы</Text>
           </View>
         }
-        renderItem={({ item }) => <SelectedCandidateCard candidate={item} />}
+        renderItem={({ item }: { item: NormativeCandidate }) => <SelectedCandidateCard candidate={item} />}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={() => (
           <Text style={styles.empty}>Нет выбранных норм для отображения.</Text>

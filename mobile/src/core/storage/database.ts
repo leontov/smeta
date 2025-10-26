@@ -1,17 +1,18 @@
+import type { SQLTransaction, SQLiteDatabase } from 'expo-sqlite';
 import * as SQLite from 'expo-sqlite';
 
 const DB_NAME = 'smeta.offline.db';
 
-let database: SQLite.SQLiteDatabase | null = null;
+let database: SQLiteDatabase | null = null;
 
-export const getDatabase = () => {
+export const getDatabase = (): SQLiteDatabase => {
   if (!database) {
     database = SQLite.openDatabase(DB_NAME);
   }
   return database;
 };
 
-export const ensureDatabase = async () => {
+export const ensureDatabase = async (): Promise<void> => {
   const db = getDatabase();
   await executeAsync(db, `CREATE TABLE IF NOT EXISTS metadata (
       key TEXT PRIMARY KEY,
@@ -48,17 +49,20 @@ export const ensureDatabase = async () => {
     )`);
 };
 
-export const executeAsync = (db: SQLite.SQLiteDatabase, sql: string, params: unknown[] = []) =>
+export const executeAsync = (db: SQLiteDatabase, sql: string, params: unknown[] = []): Promise<void> =>
   new Promise<void>((resolve, reject) => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        sql,
-        params,
-        () => resolve(),
-        (_, error) => {
-          reject(error);
-          return false;
-        }
-      );
-    });
+    db.transaction(
+      (tx: SQLTransaction) => {
+        tx.executeSql(
+          sql,
+          params,
+          () => resolve(),
+          (_: SQLTransaction, error: Error) => {
+            reject(error);
+            return false;
+          }
+        );
+      },
+      (error: Error) => reject(error)
+    );
   });

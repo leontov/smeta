@@ -7,19 +7,21 @@ type Props = {
   label: string;
   onPress: (event: GestureResponderEvent) => void;
   accessibilityLabel?: string;
+  accessibilityHint?: string;
   disabled?: boolean;
   loading?: boolean;
   variant?: ButtonVariant;
 };
 
-export const PrimaryButton: React.FC<Props> = ({
+export const PrimaryButton = ({
   label,
   onPress,
   accessibilityLabel,
+  accessibilityHint,
   disabled,
   loading,
   variant = 'primary'
-}) => {
+}: Props) => {
   const buttonStyles = [styles.baseButton];
   const labelStyles = [styles.baseLabel];
 
@@ -49,6 +51,7 @@ export const PrimaryButton: React.FC<Props> = ({
     <TouchableOpacity
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityRole="button"
+      accessibilityHint={accessibilityHint}
       disabled={disabled || loading}
       onPress={onPress}
       style={buttonStyles}
