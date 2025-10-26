@@ -1,0 +1,16 @@
+[
+  {
+    "region": "Москва",
+    "effectiveDate": "2024-04-01",
+    "labor": 1.12,
+    "materials": 1.08,
+    "machines": 1.05
+  },
+  {
+    "region": "Санкт-Петербург",
+    "effectiveDate": "2024-04-01",
+    "labor": 1.10,
+    "materials": 1.06,
+    "machines": 1.04
+  }
+]

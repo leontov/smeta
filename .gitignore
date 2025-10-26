@@ -1,0 +1,19 @@
+# Flutter
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/ios/
+**/android/
+**/Generated.xcconfig
+**/*.lock
+
+# Node
+apps/backend/node_modules/
+apps/backend/dist/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
